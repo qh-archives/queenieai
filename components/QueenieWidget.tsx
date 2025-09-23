@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { Inter } from "next/font/google";
+import Image from "next/image";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -32,7 +33,7 @@ export default function QueenieWidget() {
       });
       const data = await r.json();
       setMessages(m => [...m, { role: "assistant", content: data.reply }]);
-    } catch (err) {
+    } catch {
       setMessages(m => [...m, { role: "assistant", content: "Sorry — I had trouble replying. Please try again." }]);
     } finally {
       setLoading(false);
@@ -68,9 +69,11 @@ export default function QueenieWidget() {
           zIndex: 40
         }}
       >
-        <img
+        <Image
           src={iconSrc}
           alt="Queenie Bot"
+          width={127}
+          height={127}
           style={{
             width: "100%",
             height: "100%",
@@ -87,9 +90,11 @@ export default function QueenieWidget() {
       </button>
 
       {showCursor && (
-        <img
+        <Image
           src="/chatme.png"
           alt=""
+          width={32}
+          height={32}
           style={{
             position: "fixed",
             width: "auto",

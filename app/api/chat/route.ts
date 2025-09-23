@@ -5,7 +5,7 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, any> };
+type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, unknown> };
 type Ex = { user: string; assistant: string };
 
 const ai = new GoogleGenAI({});
@@ -55,8 +55,6 @@ export async function POST(req: NextRequest) {
   const asksAboutUxClub = userLc.includes("ux club");
   const asksAboutProject = userLc.includes("project") || userLc.includes("case study") || userLc.includes("branding");
   if (asksAboutUxClub && !asksAboutProject) {
-    const uxFaq = exemplars.find(() => false); // placeholder to keep type
-    const faqMatch = (exemplars as any) && null; // no-op
     const uxClubFaq = (JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/faqs.json"), "utf8")) as Array<{q:string;a:string}>).find(f => f.q.toLowerCase().includes("ux club"));
     if (uxClubFaq) {
       context = `• Q: ${uxClubFaq.q}\nA: ${uxClubFaq.a}`;
@@ -77,7 +75,7 @@ export async function POST(req: NextRequest) {
     config: { thinkingConfig: { thinkingBudget: 0 } }
   });
 
-  const raw = (completion as any).text ?? "";
+  const raw = (completion as { text?: string }).text ?? "";
   const reply = raw.replaceAll(" + ", " and ");
   return NextResponse.json({ reply });
 }
