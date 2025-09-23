@@ -8,11 +8,11 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: 'X-Frame-Options',
-            value: 'ALLOWALL'
+            value: 'SAMEORIGIN'
           },
           {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors *;"
+            value: "frame-ancestors 'self' *.framer.com *.framer.website;"
           }
         ],
       },
