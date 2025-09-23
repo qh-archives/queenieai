@@ -74,6 +74,7 @@ export default function QueenieWidget() {
           alt="Queenie Bot"
           width={127}
           height={127}
+          unoptimized
           style={{
             width: "100%",
             height: "100%",
@@ -95,6 +96,7 @@ export default function QueenieWidget() {
           alt=""
           width={32}
           height={32}
+          unoptimized
           style={{
             position: "fixed",
             width: "auto",
