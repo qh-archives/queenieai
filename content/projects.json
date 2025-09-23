@@ -1,0 +1,66 @@
+[
+  {
+    "id": "uber-low-price",
+    "title": "Uber — Pricing Insights for Grocery & Retail",
+    "oneLiner": "Highlight when groceries are cheaper than average so shoppers can make smarter choices.",
+    "details": [
+      "Designed a pricing insights feature to surface when items are below typical prices.",
+      "Explored messaging framework variants and thresholds by collaborating with Content Design team.",
+      "Collaborated with cross-functional teams from Product Management, Content Design, Data Science, and Engineering."
+    ],
+    "role": "Product Design / UX Intern",
+    "tools": ["Figma", "dScout"],
+    "skills": ["Mobile Design","Interaction Design", "Messaging Strategy", "User Research", "UI Design", "A/B Testing", "Prototyping","UX Design"],
+    "timeline": "May 2025 – August 2025",
+    "url": "/projects/uber"
+  },
+  {
+    "id": "lume",
+    "title": "Lume — Marketplace for Independent Designers",
+    "oneLiner": "Help independent fashiondesigners gain visibility in a saturated market.",
+    "details": [
+      "Independent fashion designers often have trouble getting discovered in a saturated market. They lack the resources, marketing power, and established platform exposure that larger brands have.",
+      "Conducted 8 user interviews, competitive analysis, and brainstorming sessions to ideate on the product. Then validated the final prototpye with 10 people total in 2 rounds of tesitng.",
+      "Lume combines curated search filters, social-style feeds, and shoppable moodboards to create meaningful connections between designers and audiences. For designers, Lume offers performance insights and simple tools to track orders, revenue, and engagement. For shoppers, it provides clear ways to explore by material, color, or concept, as well as inspiration through user-generated outfits and curated boards."
+    ],
+    "role": "Lead Product Designer / UX Researcher",
+    "tools": ["Figma", "FigJam", "Illustrator"],
+    "skills": ["Mobile Design","Design Systems", "User Research", "Visual Design", "Prototyping"],
+    "timeline": "4 Weeks, Spring 2025",
+    "url": "/projects/lume"
+  },
+
+  {
+    "id": "flowfi",
+    "title": "FlowFi — DeFi Liquidity Management Tool",
+    "oneLiner": "Help crypto investors manage and optimize liquidity across decentralized finance platforms.",
+    "details": [
+      "DeFi investors often struggle with fragmented tools, unclear performance tracking, and high barriers to understanding liquidity positions across protocols.",
+      "Conducted in-depth whitepaper research and competitive analysis of existing DeFi protocols to identify gaps in liquidity management. Used these insights to shape user flows and simplify portfolio tracking, then validated the final prototype through peer feedback during the hackathon.",
+      "FlowFi provides a dashboard that consolidates liquidity positions, real-time performance insights, and automated strategies to optimize returns. It reduces complexity for investors while giving them confidence and transparency in managing assets."
+    ],
+    "role": "Product Designer / UX Researcher",
+    "tools": ["Figma", "FigJam", "Github"],
+    "skills": ["Prototyping", "UI Design", "Information Architecture", "Secondary Research", "UX Design", "Web Design"],
+    "timeline": "48 Hours, Fall 2024",
+    "url": "/projects/flowfi"
+  },
+
+  {
+    "id": "uxclub",
+    "title": "UX Club NYU — Co‑founder, Brand Identity & Visual System",
+    "oneLiner": "Co‑founded the club and created a clear, approachable visual system across touchpoints.",
+    "details": [
+      "Co‑founded UX Club NYU and established the brand identity and visual system.",
+      "Led a small team to produce posters, event materials, and social templates for consistency.",
+      "Crafted a recognizable system across print and digital that feels clear, vibrant, and approachable."
+    ],
+    "role": "Co‑founder / Lead Visual Designer",
+    "tools": ["Figma", "Illustrator", "Photoshop"],
+    "skills": ["Brand Identity", "Visual Design", "Collaboration", "Design System"],
+    "timeline": "2 Weeks, Spring 2025",
+    "url": "/projects/uxclub"
+  }
+  
+  
+]

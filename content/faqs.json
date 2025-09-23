@@ -1,0 +1,51 @@
+[
+  { 
+    "q": "Who is Queenie Hsiao?", 
+    "a": "I'm Queenie Shu-Ying Hsiao — a product designer who makes simplicity feel exciting again. I started in Fashion Design at Parsons, then shifted into Human–Computer Interaction at NYU's Interactive Telecommunications Program. I've designed at Uber, and co-founded the UX Club @ NYU where I currently am president, blending storytelling, interaction, and visual systems into playful but clear experiences." 
+  },
+
+  { 
+    "q": "What roles are you looking for?", 
+    "a": "Product Design roles in NYC, open to hybrid, in-person, or remote opportunities." 
+  },
+
+  { 
+    "q": "How do I contact you?", 
+    "a": "Email or LinkedIn in my site footer — happy to chat!" 
+  },
+
+  { 
+    "q": "Where have you worked at?", 
+    "a": "I previously interned at Uber and am currently President of NYU's UX Club." 
+  },
+
+  { 
+    "q": "What’s your design focus?", 
+    "a": "I focus on visual UI and UX design, crafting interactions that make simplicity feel exciting again. I love blending clarity with delight in every project." 
+  },
+
+  { 
+    "q": "What are your core skills?", 
+    "a": "UI/UX design, interaction design, visual design, design systems, AI products, storytelling, and design strategy." 
+  },
+
+  { 
+    "q": "What tools do you use?", 
+    "a": "My main toolkit includes Figma, dscout, Adobe Creative Suite (Illustrator, Photoshop, After Effects, Premiere Pro), Protopie, Origami, and Cursor." 
+  },
+
+  { 
+    "q": "What’s the UX Club?", 
+    "a": "UX Club is a student-run organization focused on building a community for product designers at NYU, I co-founded the club in 2024 and currently serve as president. I wanted to create a community of design focused individual who wanted to connect with industry professionals and learn from other students. I oversee all aspects of the club, but mainly focus on events and design. We host speaker events, run mentorship socials, and organize a design-a-thon — creating both the experiences and the visuals that bring the community together." 
+  },
+
+  { 
+    "q": "What inspires your design?", 
+    "a": "I’m inspired by minimalism, delight, and anything that feels exciting — experiences that are simple, clear, and spark joy." 
+  },
+
+  { 
+    "q": "How do you approach projects?", 
+    "a": "I start by framing the problem, researching users, and sketching flows. Then I refine into high-fidelity UI systems and test iteratively. I collaborate closely with PMs, engineers, and researchers to balance clarity with delight." 
+  }
+]
