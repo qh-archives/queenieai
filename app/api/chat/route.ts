@@ -6,13 +6,13 @@ import path from "path";
 export const runtime = "nodejs";
 
 type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, unknown> };
-type Ex = { user: string; assistant: string };
+// type Ex = { user: string; assistant: string };
 
 const ai = new GoogleGenAI({});
 
 const vectors: Vec[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/vectors.json"), "utf8"));
 const styleGuide = fs.readFileSync(path.join(process.cwd(), "content/style.md"), "utf8");
-const exemplars: Ex[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/exemplars.json"), "utf8"));
+// const exemplars: Ex[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/exemplars.json"), "utf8"));
 
 function cos(a: number[], b: number[]) {
   let dot = 0, na = 0, nb = 0;
@@ -22,7 +22,8 @@ function cos(a: number[], b: number[]) {
 
 async function retrieve(query: string, k = 6) {
   const q = await ai.models.embedContent({ model: "gemini-embedding-001", contents: query });
-  const qv = q.embeddings[0].values;
+  const qv = q.embeddings?.[0]?.values;
+  if (!qv) throw new Error("Failed to get embeddings");
   return vectors
     .map(v => ({ v, s: cos(qv, v.vector) }))
     .sort((a, b) => b.s - a.s)
@@ -61,16 +62,10 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const shots = ([] as { role: "user"|"assistant"; text: string }[]).concat(
-    ...exemplars.map(ex => [{ role: "user" as const, text: ex.user }, { role: "assistant" as const, text: ex.assistant }])
-  );
-
   const completion = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: [
-      { role: "system", text: SYSTEM },
-      { role: "user", text: `User: ${user}\n\nContext:\n${context}` },
-      ...shots
+      { text: `System: ${SYSTEM}\n\nUser: ${user}\n\nContext:\n${context}` }
     ],
     config: { thinkingConfig: { thinkingBudget: 0 } }
   });

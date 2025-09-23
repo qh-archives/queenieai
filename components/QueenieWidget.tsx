@@ -23,7 +23,7 @@ export default function QueenieWidget() {
 
   async function send() {
     const text = input.trim(); if (!text) return;
-    const next = [...messages, { role: "user", content: text }];
+    const next = [...messages, { role: "user" as const, content: text }];
     setMessages(next); setInput("");
     setLoading(true);
     try {
