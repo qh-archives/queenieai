@@ -5,14 +5,14 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, unknown> };
-// type Ex = { user: string; assistant: string };
+type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, any> };
+type Ex = { user: string; assistant: string };
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({});
 
 const vectors: Vec[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/vectors.json"), "utf8"));
 const styleGuide = fs.readFileSync(path.join(process.cwd(), "content/style.md"), "utf8");
-// const exemplars: Ex[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/exemplars.json"), "utf8"));
+const exemplars: Ex[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/exemplars.json"), "utf8"));
 
 function cos(a: number[], b: number[]) {
   let dot = 0, na = 0, nb = 0;
@@ -20,20 +20,9 @@ function cos(a: number[], b: number[]) {
   return dot / (Math.sqrt(na) * Math.sqrt(nb) + 1e-10);
 }
 
-function readFaqsSafely(): Array<{ q: string; a: string }> {
-  try {
-    const raw = fs.readFileSync(path.join(process.cwd(), "content/faqs.json"), "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed as Array<{ q: string; a: string }> : [];
-  } catch {
-    return [];
-  }
-}
-
 async function retrieve(query: string, k = 6) {
   const q = await ai.models.embedContent({ model: "gemini-embedding-001", contents: query });
-  const qv = q.embeddings?.[0]?.values;
-  if (!qv) throw new Error("Failed to get embeddings");
+  const qv = q.embeddings[0].values;
   return vectors
     .map(v => ({ v, s: cos(qv, v.vector) }))
     .sort((a, b) => b.s - a.s)
@@ -54,38 +43,28 @@ Rules:
 - Keep replies under ~120 words unless asked for more.`;
 
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json().catch(() => ({}));
-    const msgs = (body?.messages || []) as { role: "user"|"assistant"|"system"; content: string }[];
-    const user = msgs.findLast(m => m.role === "user")?.content || "";
+  const body = await req.json().catch(() => ({}));
+  const msgs = (body?.messages || []) as { role: "user"|"assistant"|"system"; content: string }[];
+  const user = msgs.findLast(m => m.role === "user")?.content || "";
 
-    const top = await retrieve(user, 6);
-    let context = top.map(t => `• ${t.text}`).join("\n");
+  const top = await retrieve(user, 6);
+  const context = top.map(t => `• ${t.text}`).join("\n");
 
-    // Special handling: generic "UX Club" queries should answer with the FAQ, not the branding project
-    const userLc = user.toLowerCase();
-    const asksAboutUxClub = userLc.includes("ux club");
-    const asksAboutProject = userLc.includes("project") || userLc.includes("case study") || userLc.includes("branding");
-    if (asksAboutUxClub && !asksAboutProject) {
-      const uxClubFaq = readFaqsSafely().find(f => f.q.toLowerCase().includes("ux club"));
-      if (uxClubFaq) {
-        context = `• Q: ${uxClubFaq.q}\nA: ${uxClubFaq.a}`;
-      }
-    }
+  const shots = ([] as { role: "user"|"assistant"; text: string }[]).concat(
+    ...exemplars.map(ex => [{ role: "user" as const, text: ex.user }, { role: "assistant" as const, text: ex.assistant }])
+  );
 
-    const completion = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: [
-        { text: `System: ${SYSTEM}\n\nUser: ${user}\n\nContext:\n${context}` }
-      ],
-      config: { thinkingConfig: { thinkingBudget: 0 } }
-    });
+  const completion = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: [
+      { role: "system", text: SYSTEM },
+      { role: "user", text: `User: ${user}\n\nContext:\n${context}` },
+      ...shots
+    ],
+    config: { thinkingConfig: { thinkingBudget: 0 } }
+  });
 
-    const raw = (completion as { text?: string }).text ?? "";
-    const reply = raw.replaceAll(" + ", " and ");
-    return NextResponse.json({ reply });
-  } catch (error) {
-    console.error("Chat API error:", error);
-    return NextResponse.json({ reply: "I’m here, but ran into a hiccup. Please try again." });
-  }
+  const raw = (completion as any).text ?? "";
+  const reply = raw.replaceAll(" + ", " and ");
+  return NextResponse.json({ reply });
 }
