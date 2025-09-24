@@ -4,11 +4,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/widget',
         headers: [
           {
+            key: 'X-Frame-Options',
+            value: 'ALLOWALL'
+          },
+          {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors https://www.queenie.works https://queenie.works https://*.framer.app https://*.framer.website https://framer.com;"
+            value: "frame-ancestors 'self' https://framer.com https://*.framer.com https://*.framer.website https://www.queenie.works https://queenie.works;"
           }
         ],
       },
