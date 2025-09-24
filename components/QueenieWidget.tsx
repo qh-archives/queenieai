@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Inter } from "next/font/google";
 import Image from "next/image";
+import { useSpring, animated } from "@react-spring/web";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -15,11 +16,17 @@ export default function QueenieWidget() {
   const [input, setInput] = useState("");
   const boxRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(false);
-  const [showCursor, setShowCursor] = useState(false);
-  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   // NEW: image src swap state for hover "pause"
   const [iconSrc, setIconSrc] = useState("/QueenieWidget.gif");
+  const [showCursor, setShowCursor] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const springProps = useSpring({
+    transform: `translate3d(${mousePosition.x + 5}px, ${mousePosition.y + 5}px, 0)`,
+    opacity: showCursor ? 1 : 0,
+    config: { tension: 300, friction: 20 }
+  });
 
   async function send() {
     const text = input.trim(); if (!text) return;
@@ -46,14 +53,41 @@ export default function QueenieWidget() {
 
   return (
     <div className={inter.className}>
+      {/* Custom cursor */}
+      {showCursor && (
+        <animated.div
+          style={{
+            ...springProps,
+            position: "fixed",
+            pointerEvents: "none",
+            zIndex: 9999,
+            transform: springProps.transform.to((x, y, z) => `translate3d(${x}px, ${y}px, ${z}px)`)
+          }}
+        >
+          <Image
+            src="/chatme.png"
+            alt="Chat cursor"
+            width={141}
+            height={38}
+            style={{
+              imageRendering: "crisp-edges",
+              transform: "translate(-100%, -100%)"
+            }}
+          />
+        </animated.div>
+      )}
+
       {/* Floating launcher button with GIF that swaps to still image on hover */}
       <button
         aria-label={open ? "Close chat" : "Open chat"}
         onClick={() => setOpen(!open)}
         onMouseEnter={() => setIconSrc("/QueenieWidget_still.png")}
-        onMouseLeave={() => { setIconSrc("/QueenieWidget.gif"); setShowCursor(false); }}
+        onMouseLeave={() => {
+          setIconSrc("/QueenieWidget.gif");
+          setShowCursor(false);
+        }}
+        onMouseMove={(e) => setMousePosition({ x: e.clientX, y: e.clientY })}
         onMouseOver={() => setShowCursor(true)}
-        onMouseMove={(e) => setCursorPos({ x: e.clientX, y: e.clientY })}
         style={{
           position: "fixed",
           right: 20,
@@ -89,28 +123,6 @@ export default function QueenieWidget() {
         />
       </button>
 
-      {showCursor && (
-        <Image
-          src="/chatme.png"
-          alt=""
-          width={141}
-          height={38}
-          style={{
-            position: "fixed",
-            width: "auto",
-            height: "auto",
-            left: cursorPos.x,
-            top: cursorPos.y,
-            pointerEvents: "none",
-            userSelect: "none",
-            imageRendering: "crisp-edges",
-            transform: "translate(-100%, -100%) translate(5px, 5px)",
-            transformOrigin: "top left",
-            transition: "left 180ms cubic-bezier(.2,.8,.2,1), top 180ms cubic-bezier(.2,.8,.2,1), transform 180ms cubic-bezier(.2,.8,.2,1)",
-            zIndex: 60
-          }}
-        />
-      )}
 
       {open && (
         <div style={{
