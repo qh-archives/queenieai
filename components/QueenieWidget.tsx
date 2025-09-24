@@ -7,7 +7,7 @@ type Msg = { role: "user" | "assistant"; content: string };
 const inter = Inter({ subsets: ["latin"] });
 
 export default function QueenieWidget() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
     { role: "assistant", content: "Hello! (: I’m Queenie Bot — ask me about my projects, my background, or my work experiences." }
   ]);
