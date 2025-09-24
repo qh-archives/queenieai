@@ -7,9 +7,14 @@ const nextConfig: NextConfig = {
         source: '/widget',
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'ALLOWALL'
-          },
+            key: 'Content-Security-Policy',
+            value: "frame-ancestors 'self' https://framer.com https://*.framer.com https://*.framer.website https://www.queenie.works https://queenie.works;"
+          }
+        ],
+      },
+      {
+        source: '/widget/(.*)',
+        headers: [
           {
             key: 'Content-Security-Policy',
             value: "frame-ancestors 'self' https://framer.com https://*.framer.com https://*.framer.website https://www.queenie.works https://queenie.works;"
