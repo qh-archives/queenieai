@@ -23,7 +23,8 @@ export default function QueenieWidget() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const springProps = useSpring({
-    transform: `translate3d(${mousePosition.x + 5}px, ${mousePosition.y + 5}px, 0)`,
+    left: mousePosition.x + 5,
+    top: mousePosition.y + 5,
     opacity: showCursor ? 1 : 0,
     config: { tension: 300, friction: 20 }
   });
@@ -54,28 +55,25 @@ export default function QueenieWidget() {
   return (
     <div className={inter.className}>
       {/* Custom cursor */}
-      {showCursor && (
-        <animated.div
+      <animated.div
+        style={{
+          ...springProps,
+          position: "fixed",
+          pointerEvents: "none",
+          zIndex: 9999,
+          transform: "translate(-100%, -100%)"
+        }}
+      >
+        <Image
+          src="/chatme.png"
+          alt="Chat cursor"
+          width={141}
+          height={38}
           style={{
-            ...springProps,
-            position: "fixed",
-            pointerEvents: "none",
-            zIndex: 9999,
-            transform: springProps.transform.to((x, y, z) => `translate3d(${x}px, ${y}px, ${z}px)`)
+            imageRendering: "crisp-edges"
           }}
-        >
-          <Image
-            src="/chatme.png"
-            alt="Chat cursor"
-            width={141}
-            height={38}
-            style={{
-              imageRendering: "crisp-edges",
-              transform: "translate(-100%, -100%)"
-            }}
-          />
-        </animated.div>
-      )}
+        />
+      </animated.div>
 
       {/* Floating launcher button with GIF that swaps to still image on hover */}
       <button
@@ -123,6 +121,28 @@ export default function QueenieWidget() {
         />
       </button>
 
+      {showCursor && (
+        <Image
+          src="/chatme.png"
+          alt=""
+          width={563}
+          height={152}
+          style={{
+            position: "fixed",
+            width: "auto",
+            height: "auto",
+            left: mousePosition.x,
+            top: mousePosition.y,
+            pointerEvents: "none",
+            userSelect: "none",
+            imageRendering: "crisp-edges",
+            transform: "translate(-100%, -100%) translate(5px, 5px)",
+            transformOrigin: "top left",
+            transition: "left 180ms cubic-bezier(.2,.8,.2,1), top 180ms cubic-bezier(.2,.8,.2,1), transform 180ms cubic-bezier(.2,.8,.2,1)",
+            zIndex: 60
+          }}
+        />
+      )}
 
       {open && (
         <div style={{
