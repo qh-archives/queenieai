@@ -10,11 +10,6 @@ type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, a
 
 const ai = new GoogleGenAI({}); // reads GEMINI_API_KEY
 
-if (!process.env.GEMINI_API_KEY) {
-  console.error("Missing GEMINI_API_KEY. Add it to .env.local and retry.");
-  process.exit(1);
-}
-
 function loadText(p: string) { return fs.readFileSync(path.join(process.cwd(), p), "utf8").trim(); }
 function loadJSON<T>(p: string): T { return JSON.parse(fs.readFileSync(path.join(process.cwd(), p), "utf8")); }
 
@@ -25,6 +20,14 @@ function chunk(text: string, size = 800, overlap = 100) {
 }
 
 async function main() {
+  if (!process.env.GEMINI_API_KEY) {
+    if (fs.existsSync("content/vectors.json")) {
+      console.log("GEMINI_API_KEY missing; using existing content/vectors.json");
+      return;
+    }
+    console.log("GEMINI_API_KEY missing; skipping vector build");
+    return;
+  }
   const bio = loadText("content/bio.md");
   const projects = loadJSON<any[]>("content/projects.json");
   const faqs = loadJSON<any[]>("content/faqs.json");
