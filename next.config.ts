@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "frame-ancestors 'self' https://framer.com https://*.framer.com https://*.framer.website;"
+            value: "frame-ancestors 'self' https://framer.com https://*.framer.com https://*.framer.website https://www.queenie.works https://queenie.works;"
           }
         ],
       },
