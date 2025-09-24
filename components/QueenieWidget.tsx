@@ -54,10 +54,7 @@ export default function QueenieWidget() {
         onMouseEnter={() => setIconSrc("/QueenieWidget_still.png")}
         onMouseLeave={() => {
           setIconSrc("/QueenieWidget.gif");
-          setShowCursor(false);
         }}
-        onMouseMove={(e) => setMousePosition({ x: e.clientX, y: e.clientY })}
-        onMouseOver={() => setShowCursor(true)}
         style={{
           position: "fixed",
           right: 20,
