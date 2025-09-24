@@ -77,13 +77,15 @@ export async function POST(req: NextRequest) {
       { role: "model" as const, parts: [{ text: ex.assistant }] }
     ]));
 
+    // Place few-shot examples before the live user message and remove extra config
     const completion = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-1.5-flash",
       contents: [
-        { role: "user", parts: [{ text: `${SYSTEM}\n\nUser: ${user}\n\nContext:\n${context}` }] },
-        ...fewShotContents
-      ],
-      config: { thinkingConfig: { thinkingBudget: 0 } }
+        // System instructions embedded at the top of the first turn
+        { role: "user", parts: [{ text: SYSTEM }] },
+        ...fewShotContents,
+        { role: "user", parts: [{ text: `User: ${user}\n\nContext:\n${context}` }] }
+      ]
     });
 
     const anyResp = completion as unknown as { text?: string; candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
@@ -92,6 +94,11 @@ export async function POST(req: NextRequest) {
       const fromParts = anyResp?.candidates?.[0]?.content?.parts?.map(p => p.text || "").join("").trim();
       raw = fromParts || "";
     }
+    console.log("/api/chat completion summary", {
+      hasText: Boolean(anyResp?.text),
+      parts: anyResp?.candidates?.[0]?.content?.parts?.length,
+      preview: (raw || "").slice(0, 80)
+    });
     const cleaned = raw.replaceAll(" + ", " and ").trim();
     const reply = cleaned.length > 0 ? cleaned : "I’m here and ready to help. Ask about my projects, background, or process.";
     return NextResponse.json({ reply });
