@@ -70,16 +70,17 @@ export async function POST(req: NextRequest) {
     context = top.map(t => `• ${t.text}`).join("\n");
   }
 
-  const shots = ([] as { role: "user"|"assistant"; text: string }[]).concat(
-    ...exemplars.map(ex => [{ role: "user" as const, text: ex.user }, { role: "assistant" as const, text: ex.assistant }])
-  );
+  // Convert exemplars to proper content format (user/model roles with parts)
+  const fewShotContents = exemplars.flatMap(ex => ([
+    { role: "user" as const, parts: [{ text: ex.user }] },
+    { role: "model" as const, parts: [{ text: ex.assistant }] }
+  ]));
 
   const completion = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents: [
-      { role: "system", text: SYSTEM },
-      { role: "user", text: `User: ${user}\n\nContext:\n${context}` },
-      ...shots
+      { role: "user", parts: [{ text: `${SYSTEM}\n\nUser: ${user}\n\nContext:\n${context}` }] },
+      ...fewShotContents
     ],
     config: { thinkingConfig: { thinkingBudget: 0 } }
   });
