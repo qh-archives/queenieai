@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, unknown> };
 // type Ex = { user: string; assistant: string };
 
-const ai = new GoogleGenAI({});
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const vectors: Vec[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/vectors.json"), "utf8"));
 const styleGuide = fs.readFileSync(path.join(process.cwd(), "content/style.md"), "utf8");

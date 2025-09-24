@@ -8,7 +8,7 @@ dotenv.config({ path: ".env.local" });
 type Doc = { id: string; text: string; meta?: Record<string, any> };
 type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, any> };
 
-const ai = new GoogleGenAI({}); // reads GEMINI_API_KEY
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }); // explicit key
 
 if (!process.env.GEMINI_API_KEY) {
   console.error("Missing GEMINI_API_KEY. Skipping vector generation for build.");
