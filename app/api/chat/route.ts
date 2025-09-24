@@ -68,8 +68,28 @@ export async function POST(req: NextRequest) {
       ].join("\n");
       context = pCtx;
     } else {
-      const top = await retrieve(user, 6);
-      context = top.map(t => `• ${t.text}`).join("\n");
+      // Generic project request routing: pick a featured project if the user asks vaguely
+      const isGenericProjectAsk = /\b(project|projects|work|case study|case studies)\b/i.test(user) &&
+        !projects.some(p => userLc.includes(p.id) || userLc.includes(p.title.toLowerCase()));
+
+      if (isGenericProjectAsk) {
+        const featuredPreference = ["uber", "uber-low-price", "lume", "flowfi", "ux club", "ux-club"];
+        const byTitleOrId = (needle: string) => projects.find(p => p.id.toLowerCase().includes(needle) || p.title.toLowerCase().includes(needle));
+        const featuredPick = featuredPreference.map(byTitleOrId).find(Boolean) || projects[0];
+        if (featuredPick) {
+          const pCtx = [
+            `${featuredPick.title}`,
+            `${featuredPick.oneLiner}`,
+            ...featuredPick.details.map(d => `- ${d}`)
+          ].join("\n");
+          context = pCtx;
+        }
+      }
+
+      if (!context) {
+        const top = await retrieve(user, 6);
+        context = top.map(t => `• ${t.text}`).join("\n");
+      }
     }
 
     // Convert exemplars to proper content format (user/model roles with parts)
