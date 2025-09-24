@@ -5,7 +5,7 @@ import path from "path";
 
 export const runtime = "nodejs";
 
-type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, any> };
+type Vec = { id: string; vector: number[]; text: string; meta?: Record<string, unknown> };
 type Ex = { user: string; assistant: string };
 
 const ai = new GoogleGenAI({});
@@ -13,6 +13,9 @@ const ai = new GoogleGenAI({});
 const vectors: Vec[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/vectors.json"), "utf8"));
 const styleGuide = fs.readFileSync(path.join(process.cwd(), "content/style.md"), "utf8");
 const exemplars: Ex[] = JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/exemplars.json"), "utf8"));
+const projects: Array<{id:string; title:string; oneLiner:string; details:string[]; url:string}> = JSON.parse(
+  fs.readFileSync(path.join(process.cwd(), "content/projects.json"), "utf8")
+);
 
 function cos(a: number[], b: number[]) {
   let dot = 0, na = 0, nb = 0;
@@ -47,8 +50,21 @@ export async function POST(req: NextRequest) {
   const msgs = (body?.messages || []) as { role: "user"|"assistant"|"system"; content: string }[];
   const user = msgs.findLast(m => m.role === "user")?.content || "";
 
-  const top = await retrieve(user, 6);
-  const context = top.map(t => `• ${t.text}`).join("\n");
+  // Simple project name detection
+  const userLc = user.toLowerCase();
+  const matched = projects.find(p => userLc.includes(p.id) || userLc.includes(p.title.toLowerCase()));
+  let context = "";
+  if (matched) {
+    const pCtx = [
+      `${matched.title}`,
+      `${matched.oneLiner}`,
+      ...matched.details.map(d => `- ${d}`)
+    ].join("\n");
+    context = pCtx;
+  } else {
+    const top = await retrieve(user, 6);
+    context = top.map(t => `• ${t.text}`).join("\n");
+  }
 
   const shots = ([] as { role: "user"|"assistant"; text: string }[]).concat(
     ...exemplars.map(ex => [{ role: "user" as const, text: ex.user }, { role: "assistant" as const, text: ex.assistant }])
@@ -64,7 +80,7 @@ export async function POST(req: NextRequest) {
     config: { thinkingConfig: { thinkingBudget: 0 } }
   });
 
-  const raw = (completion as any).text ?? "";
+  const raw = (completion as { text?: string } | null)?.text ?? "";
   const reply = raw.replaceAll(" + ", " and ");
   return NextResponse.json({ reply });
 }

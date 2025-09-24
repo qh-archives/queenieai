@@ -30,7 +30,7 @@ export default function QueenieWidget() {
       });
       const data = await r.json();
       setMessages(m => [...m, { role: "assistant" as const, content: data.reply }]);
-    } catch (err) {
+    } catch {
       setMessages(m => [...m, { role: "assistant" as const, content: "Sorry — I had trouble replying. Please try again." }]);
     } finally {
       setLoading(false);
