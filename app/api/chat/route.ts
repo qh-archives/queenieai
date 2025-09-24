@@ -25,7 +25,11 @@ function cos(a: number[], b: number[]) {
 
 async function retrieve(query: string, k = 6) {
   const q = await ai.models.embedContent({ model: "gemini-embedding-001", contents: query });
-  const qv = q.embeddings[0].values;
+  const embeddings = (q as { embeddings?: { values: number[] }[] }).embeddings;
+  if (!embeddings || embeddings.length === 0) {
+    return vectors.slice(0, k);
+  }
+  const qv = embeddings[0].values;
   return vectors
     .map(v => ({ v, s: cos(qv, v.vector) }))
     .sort((a, b) => b.s - a.s)
