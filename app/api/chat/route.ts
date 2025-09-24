@@ -20,6 +20,16 @@ function cos(a: number[], b: number[]) {
   return dot / (Math.sqrt(na) * Math.sqrt(nb) + 1e-10);
 }
 
+function readFaqsSafely(): Array<{ q: string; a: string }> {
+  try {
+    const raw = fs.readFileSync(path.join(process.cwd(), "content/faqs.json"), "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed as Array<{ q: string; a: string }> : [];
+  } catch {
+    return [];
+  }
+}
+
 async function retrieve(query: string, k = 6) {
   const q = await ai.models.embedContent({ model: "gemini-embedding-001", contents: query });
   const qv = q.embeddings?.[0]?.values;
@@ -44,33 +54,38 @@ Rules:
 - Keep replies under ~120 words unless asked for more.`;
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => ({}));
-  const msgs = (body?.messages || []) as { role: "user"|"assistant"|"system"; content: string }[];
-  const user = msgs.findLast(m => m.role === "user")?.content || "";
+  try {
+    const body = await req.json().catch(() => ({}));
+    const msgs = (body?.messages || []) as { role: "user"|"assistant"|"system"; content: string }[];
+    const user = msgs.findLast(m => m.role === "user")?.content || "";
 
-  const top = await retrieve(user, 6);
-  let context = top.map(t => `• ${t.text}`).join("\n");
+    const top = await retrieve(user, 6);
+    let context = top.map(t => `• ${t.text}`).join("\n");
 
-  // Special handling: generic "UX Club" queries should answer with the FAQ, not the branding project
-  const userLc = user.toLowerCase();
-  const asksAboutUxClub = userLc.includes("ux club");
-  const asksAboutProject = userLc.includes("project") || userLc.includes("case study") || userLc.includes("branding");
-  if (asksAboutUxClub && !asksAboutProject) {
-    const uxClubFaq = (JSON.parse(fs.readFileSync(path.join(process.cwd(), "content/faqs.json"), "utf8")) as Array<{q:string;a:string}>).find(f => f.q.toLowerCase().includes("ux club"));
-    if (uxClubFaq) {
-      context = `• Q: ${uxClubFaq.q}\nA: ${uxClubFaq.a}`;
+    // Special handling: generic "UX Club" queries should answer with the FAQ, not the branding project
+    const userLc = user.toLowerCase();
+    const asksAboutUxClub = userLc.includes("ux club");
+    const asksAboutProject = userLc.includes("project") || userLc.includes("case study") || userLc.includes("branding");
+    if (asksAboutUxClub && !asksAboutProject) {
+      const uxClubFaq = readFaqsSafely().find(f => f.q.toLowerCase().includes("ux club"));
+      if (uxClubFaq) {
+        context = `• Q: ${uxClubFaq.q}\nA: ${uxClubFaq.a}`;
+      }
     }
+
+    const completion = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        { text: `System: ${SYSTEM}\n\nUser: ${user}\n\nContext:\n${context}` }
+      ],
+      config: { thinkingConfig: { thinkingBudget: 0 } }
+    });
+
+    const raw = (completion as { text?: string }).text ?? "";
+    const reply = raw.replaceAll(" + ", " and ");
+    return NextResponse.json({ reply });
+  } catch (error) {
+    console.error("Chat API error:", error);
+    return NextResponse.json({ reply: "I’m here, but ran into a hiccup. Please try again." });
   }
-
-  const completion = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: [
-      { text: `System: ${SYSTEM}\n\nUser: ${user}\n\nContext:\n${context}` }
-    ],
-    config: { thinkingConfig: { thinkingBudget: 0 } }
-  });
-
-  const raw = (completion as { text?: string }).text ?? "";
-  const reply = raw.replaceAll(" + ", " and ");
-  return NextResponse.json({ reply });
 }
